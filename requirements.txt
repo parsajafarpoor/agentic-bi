@@ -1,0 +1,8 @@
+psycopg2-binary
+python-dotenv
+requests
+pandas
+numpy
+faker
+sqlglot
+pyyaml

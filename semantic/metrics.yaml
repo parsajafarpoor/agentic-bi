@@ -1,0 +1,161 @@
+metrics:
+
+  revenue:
+    name: Revenue
+    description: Total sales revenue
+    expression: SUM(sales.total_amount)
+    type: currency
+    requires_tables: [sales]
+    aliases_fa: [درآمد, فروش, مبلغ فروش, درآمد کل]
+
+  cost:
+    name: Cost
+    description: Total cost of sold products
+    expression: SUM(sales.total_cost)
+    type: currency
+    requires_tables: [sales]
+    aliases_fa: [هزینه, بهای تمام‌شده, قیمت تمام‌شده]
+
+  profit:
+    name: Profit
+    description: Total gross profit
+    expression: SUM(sales.total_amount - sales.total_cost)
+    type: currency
+    requires_tables: [sales]
+    aliases_fa: [سود, سود ناخالص, سود کل]
+
+  units_sold:
+    name: Units Sold
+    description: Total number of units sold
+    expression: SUM(sales.quantity)
+    type: number
+    requires_tables: [sales]
+    aliases_fa: [تعداد فروش, واحد فروخته‌شده, تعداد واحد]
+
+  orders:
+    name: Orders
+    description: Number of sales transactions
+    expression: COUNT(DISTINCT sales.sale_id)
+    type: number
+    requires_tables: [sales]
+    aliases_fa: [تعداد سفارش, تعداد تراکنش, سفارشات]
+
+  average_order_value:
+    name: Average Order Value
+    description: Average revenue per order
+    expression: SUM(sales.total_amount) / NULLIF(COUNT(DISTINCT sales.sale_id), 0)
+    type: currency
+    requires_tables: [sales]
+    aliases_fa: [میانگین ارزش سفارش, میانگین سفارش]
+
+  average_unit_price:
+    name: Average Unit Price
+    description: Average selling price per unit
+    expression: SUM(sales.total_amount) / NULLIF(SUM(sales.quantity), 0)
+    type: currency
+    requires_tables: [sales]
+    aliases_fa: [میانگین قیمت واحد, قیمت میانگین]
+
+  gross_margin:
+    name: Gross Margin
+    description: Gross profit divided by revenue
+    expression: SUM(sales.total_amount - sales.total_cost) / NULLIF(SUM(sales.total_amount), 0)
+    type: percentage
+    requires_tables: [sales]
+    aliases_fa: [حاشیه سود ناخالص, مارجین ناخالص]
+
+  target:
+    name: Sales Target
+    description: Sales target assigned to sales managers
+    expression: SUM(targets.target_amount)
+    type: currency
+    requires_tables: [targets]
+    aliases_fa: [هدف فروش, تارگت, هدف]
+
+  target_achievement:
+    name: Target Achievement
+    description: Revenue divided by sales target
+    expression: SUM(sales.total_amount) / NULLIF(SUM(targets.target_amount), 0)
+    type: percentage
+    requires_tables: [sales, targets]
+    aliases_fa: [تحقق هدف, درصد تحقق هدف, دستیابی به هدف]
+
+  profit_margin:
+    name: Profit Margin
+    description: Profit divided by revenue
+    expression: SUM(sales.total_amount - sales.total_cost) / NULLIF(SUM(sales.total_amount), 0)
+    type: percentage
+    requires_tables: [sales]
+    aliases_fa: [حاشیه سود, مارجین سود]
+
+  units_per_order:
+    name: Units per Order
+    description: Average number of units sold per order
+    expression: SUM(sales.quantity) / NULLIF(COUNT(DISTINCT sales.sale_id), 0)
+    type: number
+    requires_tables: [sales]
+    aliases_fa: [تعداد واحد در هر سفارش, میانگین واحد سفارش]
+
+  # NOTE: not expressible as a single-row aggregate expression - it needs a
+  # period-over-period comparison (current vs. previous window). Left as a
+  # documented definition for now; implement as a dedicated tool/query
+  # template rather than a plain SQL fragment. See Phase 2 follow-up.
+  revenue_growth:
+    name: Revenue Growth
+    description: Revenue growth compared with previous period
+    expression: "(current_revenue - previous_revenue) / NULLIF(previous_revenue, 0)"
+    type: percentage
+    requires_tables: [sales]
+    computable: false
+    aliases_fa: [رشد فروش, رشد درآمد, نرخ رشد]
+
+
+dimensions:
+
+  date:
+    column: sales.sale_date
+    type: date
+    join_path: [sales]
+    aliases_fa: [تاریخ, روز, ماه, سال]
+
+  manager:
+    column: sales_managers.manager_name
+    type: string
+    join_path: [sales, sales_managers]
+    aliases_fa: [مدیر فروش, مدیر, فروشنده]
+
+  region:
+    column: regions.region_name
+    type: string
+    join_path: [sales, sales_managers, regions]
+    aliases_fa: [منطقه, ناحیه, استان]
+
+  customer:
+    column: customers.customer_name
+    type: string
+    join_path: [sales, customers]
+    aliases_fa: [مشتری, خریدار]
+
+  city:
+    column: customers.city
+    type: string
+    join_path: [sales, customers]
+    aliases_fa: [شهر]
+
+  product:
+    column: products.product_name
+    type: string
+    join_path: [sales, products]
+    aliases_fa: [محصول, کالا]
+
+  category:
+    column: products.category
+    type: string
+    join_path: [sales, products]
+    aliases_fa: [دسته‌بندی, رده محصول]
+
+  capacity:
+    column: products.capacity_gb
+    type: number
+    join_path: [sales, products]
+    aliases_fa: [ظرفیت, حافظه]
